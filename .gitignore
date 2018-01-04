@@ -1,0 +1,4 @@
+node_modules
+.*.sw?
+*.sqlite3
+trash
