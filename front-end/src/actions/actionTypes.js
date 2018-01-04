@@ -1,0 +1,1 @@
+export const GITHUB_EVENTS = 'GITHUB_EVENTS';
