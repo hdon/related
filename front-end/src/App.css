@@ -1,0 +1,12 @@
+.featured-entity {
+  text-shadow:
+    /* lol */
+    0px 0px 10px purple,
+    0px 0px 10px purple,
+    0px 0px 10px purple,
+    0px 0px 10px purple,
+    0px 0px 10px purple,
+    0px 0px 10px purple
+    ;
+  color: yellow;
+}

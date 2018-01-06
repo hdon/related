@@ -3,10 +3,11 @@ import { Navbar, Nav, NavItem, Jumbotron, Button, Grid, Row } from 'react-bootst
 import './App.css';
 import { Route, Switch } from 'react-router';
 import IndexPage from './components/IndexPage';
+import ProjectsPage from './components/ProjectsPage';
+import NewProjectPage from './components/NewProjectPage';
+import ProjectPage from './components/ProjectPage';
+import InputPage from './components/InputPage';
 import { LinkContainer } from 'react-router-bootstrap';
-
-const ProjectPage = () =>
-  <h1>Projects!</h1>
 
 class App extends React.Component {
   render() {
@@ -30,8 +31,11 @@ class App extends React.Component {
         </Nav>
       </Navbar>
       <Switch>
-        <Route path="/" exact={true} component={IndexPage}/>
-        <Route path="/projects" exact={true} component={ProjectPage}/>
+        <Route path="/" exact component={IndexPage}/>
+        <Route path="/projects/new" exact component={NewProjectPage}/>
+        <Route path="/projects" exact component={ProjectsPage}/>
+        <Route path="/projects/:project_id" exact component={ProjectPage}/>
+        <Route path="/projects/:project_id/input" exact component={InputPage}/>
       </Switch>
     </div>
   }

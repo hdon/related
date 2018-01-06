@@ -14,4 +14,6 @@ ReactDOM.render(
     </ConnectedRouter>
   </Provider>
 , document.getElementById('root'));
-registerServiceWorker();
+
+if (process.env.NODE_ENV == 'production')
+  registerServiceWorker();
