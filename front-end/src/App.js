@@ -24,10 +24,6 @@ class App extends React.Component {
           <LinkContainer to="/projects">
             <NavItem>Projects</NavItem>
           </LinkContainer>
-          <LinkContainer to="/input">
-            <NavItem>Input</NavItem>
-          </LinkContainer>
-          <NavItem href="#">Output</NavItem>
         </Nav>
       </Navbar>
       <Switch>
