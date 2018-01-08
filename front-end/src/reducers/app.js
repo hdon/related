@@ -6,6 +6,15 @@ import {
 , FETCH_COMPARANDS_REQUEST
 , FETCH_COMPARANDS_SUCCESS
 , FETCH_COMPARANDS_FAILURE
+, FETCH_ENTITIES_REQUEST
+, FETCH_ENTITIES_SUCCESS
+, FETCH_ENTITIES_FAILURE
+, DELETE_ENTITY_REQUEST
+, DELETE_ENTITY_SUCCESS
+, DELETE_ENTITY_FAILURE
+, POST_ENTITY_REQUEST
+, POST_ENTITY_SUCCESS
+, POST_ENTITY_FAILURE
 } from '../actions/actionTypes';
 
 const initState = {
@@ -52,6 +61,24 @@ export default (state=initState, action) => {
         ...state
       , spinning: false
       , err: action.err
+      }
+    case FETCH_ENTITIES_SUCCESS:
+      return {
+        ...state
+      , spinning: false
+      , entities: action.entities
+      }
+    case DELETE_ENTITY_SUCCESS:
+      return {
+        ...state
+      , spinning: false
+      , entities: state.entities.filter(ent => ent.id !== action.id)
+      }
+    case POST_ENTITY_SUCCESS:
+      return {
+        ...state
+      , spinning: false
+      , entities: [ ...state.entities, action.entity ]
       }
     default:
       return state;

@@ -18,11 +18,12 @@ const api = kalamata(app);
 app.set('json replacer', (k, v) => (v instanceof Error) ? v.message : v);
 
 /* in development mode, simulate a little latency */
-app.use((req, res, next) => setTimeout(next, 250));
+//app.use((req, res, next) => setTimeout(next, 250));
 
 /* maybe not the smartest CORS headers given that we have no authentication... */
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   /* NOTE assuming OPTIONS is only ever a CORS preflight request... */
   if (req.method == 'OPTIONS')
@@ -81,6 +82,14 @@ app.post('/related', (req, res, next) => Promise.try(() => {
     throw new Error('invalid "a" parameter');
   if ('number' !== typeof req.body.b)
     throw new Error('invalid "b" parameter');
+  let a, b;
+  if (req.body.a < req.body.b) {
+    a = req.body.a;
+    b = req.body.b;
+  } else {
+    b = req.body.a;
+    a = req.body.b;
+  }
   knex('related')
   .select()
   .where(req.body)
@@ -88,13 +97,9 @@ app.post('/related', (req, res, next) => Promise.try(() => {
   .then($ => $
   ? knex('related')
     .update({ n: $.n+1 })
-    .where(req.body)
+    .where({ a, b })
   : knex('related')
-    .insert({
-      a: req.body.a
-    , b: req.body.b
-    , n: 1
-    })
+    .insert({ a , b , n: 1 })
   ).then(() =>
     res.end()
   )

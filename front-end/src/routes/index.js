@@ -1,13 +1,17 @@
 /* Here we configure our front-end router. See router.js for more.
  */
 import Router from './router';
-import { viewProject, fetchComparands } from '../actions';
 import axios from 'axios';
 import API from '../lib/api';
 import {
   GITHUB_EVENTS
 , FETCH_PROJECTS
 } from '../actions/actionTypes';
+import {
+  viewProject
+, fetchComparands
+, fetchEntities
+} from '../actions';
 const router = new Router();
 // TODO don't put this setting in revision control. maybe define it in our
 // webpack configuration somewhere
@@ -40,6 +44,10 @@ router.enter('/projects/:project_id', ({ params }) =>
 router.enter('/projects/:project_id/input', ({ params }) => {
   viewProject(params.project_id)(router.dispatch);
   fetchComparands(params.project_id)(router.dispatch);
+})
+router.enter('/projects/:project_id/entities', ({ params }) => {
+  viewProject(params.project_id)(router.dispatch);
+  fetchEntities(params.project_id)(router.dispatch);
 })
   
 

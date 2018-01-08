@@ -19,6 +19,15 @@ import {
 , SEND_COMPARISON_REQUEST
 , SEND_COMPARISON_SUCCESS
 , SEND_COMPARISON_FAILURE
+, FETCH_ENTITIES_REQUEST
+, FETCH_ENTITIES_SUCCESS
+, FETCH_ENTITIES_FAILURE
+, DELETE_ENTITY_REQUEST
+, DELETE_ENTITY_SUCCESS
+, DELETE_ENTITY_FAILURE
+, POST_ENTITY_REQUEST
+, POST_ENTITY_SUCCESS
+, POST_ENTITY_FAILURE
 } from './actionTypes';
 
 const addProject = project => dispatch => {
@@ -65,9 +74,47 @@ const sendComparison = (a, b) => dispatch => {
   })
 }
 
+const fetchEntities = project_id => dispatch => {
+  dispatch({ type: FETCH_ENTITIES_REQUEST })
+  axios.get(API + '/entity?'
+  + QS.stringify({ where:
+      JSON.stringify({
+        project: project_id
+      })
+    })
+  ).then(res => {
+    dispatch({ type: FETCH_ENTITIES_SUCCESS, entities: res.data })
+  }).catch(err => {
+    dispatch({ type: FETCH_ENTITIES_FAILURE, err })
+  })
+}
+
+const deleteEntity = id => dispatch => {
+  dispatch({ type: DELETE_ENTITY_REQUEST });
+  axios.delete(API + '/entity/' + id)
+  .then(res => {
+    dispatch({ type: DELETE_ENTITY_SUCCESS, id })
+  }).catch(err => {
+    dispatch({ type: DELETE_ENTITY_FAILURE, err })
+  })
+}
+
+const addEntity = (name, project) => dispatch => {
+  dispatch({ type: POST_ENTITY_REQUEST });
+  axios.post(API + '/entity', { name, project })
+  .then(res => {
+    dispatch({ type: POST_ENTITY_SUCCESS, entity: res.data })
+  }).catch(err => {
+    dispatch({ type: POST_ENTITY_FAILURE, err })
+  })
+}
+
 export {
   addProject
 , viewProject
 , fetchComparands
 , sendComparison
+, fetchEntities
+, deleteEntity
+, addEntity
 }

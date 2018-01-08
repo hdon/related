@@ -17,20 +17,46 @@ const defaultComparands = [
 class InputPage extends React.Component {
   constructor(props) {
     super(props);
+    /* prebinds */
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.submit = this.submit.bind(this);
   }
   /* just returns a bound function */
   submit(which=null) {
-    return () => {
-      /* TODO create a single HTTP endpoint that accomplishes both? :) */
-      if (which !== null) {
-        this.props.actions.sendComparison(
-          this.props.comparands[0].id
-        , which
-        );
-      }
-      this.props.actions.fetchComparands(this.props.project.id);
+    /* TODO create a single HTTP endpoint that accomplishes both? :) */
+    if (which !== null) {
+      this.props.actions.sendComparison(
+        this.props.comparands[0].id
+      , which
+      );
+    }
+    this.props.actions.fetchComparands(this.props.project.id);
+  }
+  onKeyDown(ev) {
+    switch (ev.key) {
+      case 'ArrowLeft':
+        ev.preventDefault();
+        this.submit(this.props.comparands[1].id);
+        return;
+      case 'ArrowRight':
+        ev.preventDefault();
+        this.submit(this.props.comparands[2].id);
+        return;
+      case 'ArrowDown':
+        ev.preventDefault();
+        this.submit(null);
+        return;
     }
   }
+  componentWillMount() {
+    console.log('mounted');
+    document.addEventListener('keydown', this.onKeyDown);
+  }
+  componentWillUnmount() {
+    console.log('unmounted');
+    document.removeEventListener('keydown', this.onKeyDown);
+  }
+
   render() {
     const comparands = this.props.comparands || defaultComparands;
     console.log('comparands=', comparands);
@@ -50,7 +76,7 @@ class InputPage extends React.Component {
             className="center-block"
             bsStyle="success"
             disabled={spinning}
-            onClick={this.submit(comparands[1].id)}
+            onClick={this.submit.bind(this, comparands[1].id)}
           >
             {comparands[1].name}
           </Button>
@@ -61,7 +87,7 @@ class InputPage extends React.Component {
             className="center-block"
             bsStyle="success"
             disabled={spinning}
-            onClick={this.submit(comparands[2].id)}
+            onClick={this.submit.bind(this, comparands[2].id)}
           >
             {comparands[2].name}
           </Button>
@@ -73,7 +99,7 @@ class InputPage extends React.Component {
           bsSize="lg"
           bsStyle="danger"
           disabled={spinning}
-          onClick={this.submit(null)}
+          onClick={this.submit.bind(this, null)}
         >Neither</Button>
       </Row>
     </div>

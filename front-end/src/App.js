@@ -6,6 +6,7 @@ import IndexPage from './components/IndexPage';
 import ProjectsPage from './components/ProjectsPage';
 import NewProjectPage from './components/NewProjectPage';
 import ProjectPage from './components/ProjectPage';
+import EntitiesPage from './components/EntitiesPage';
 import InputPage from './components/InputPage';
 import { LinkContainer } from 'react-router-bootstrap';
 
@@ -32,6 +33,8 @@ class App extends React.Component {
         <Route path="/projects" exact component={ProjectsPage}/>
         <Route path="/projects/:project_id" exact component={ProjectPage}/>
         <Route path="/projects/:project_id/input" exact component={InputPage}/>
+        <Route path="/projects/:project_id/input" exact component={InputPage}/>
+        <Route path="/projects/:project_id/entities" exact component={EntitiesPage}/>
       </Switch>
     </div>
   }
