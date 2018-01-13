@@ -11,6 +11,7 @@ import {
   viewProject
 , fetchComparands
 , fetchEntities
+, fetchEntitiesAndRelateds
 } from '../actions';
 const router = new Router();
 // TODO don't put this setting in revision control. maybe define it in our
@@ -48,6 +49,10 @@ router.enter('/projects/:project_id/input', ({ params }) => {
 router.enter('/projects/:project_id/entities', ({ params }) => {
   viewProject(params.project_id)(router.dispatch);
   fetchEntities(params.project_id)(router.dispatch);
+})
+router.enter('/projects/:project_id/output', ({ params }) => {
+  viewProject(params.project_id)(router.dispatch);
+  fetchEntitiesAndRelateds(params.project_id)(router.dispatch);
 })
   
 

@@ -28,6 +28,9 @@ import {
 , POST_ENTITY_REQUEST
 , POST_ENTITY_SUCCESS
 , POST_ENTITY_FAILURE
+, FETCH_ENTITIES_AND_RELATEDS_REQUEST
+, FETCH_ENTITIES_AND_RELATEDS_SUCCESS
+, FETCH_ENTITIES_AND_RELATEDS_FAILURE
 } from './actionTypes';
 
 const addProject = project => dispatch => {
@@ -109,6 +112,20 @@ const addEntity = (name, project) => dispatch => {
   })
 }
 
+const fetchEntitiesAndRelateds = project_id => dispatch => {
+  dispatch({ type: FETCH_ENTITIES_AND_RELATEDS_REQUEST })
+  axios.get(API + '/related/' + project_id)
+  .then(res => {
+    dispatch({
+      type: FETCH_ENTITIES_AND_RELATEDS_SUCCESS
+    , entities: res.data.entities
+    , relateds: res.data.relateds
+    })
+  }).catch(err => {
+    dispatch({ type: FETCH_ENTITIES_AND_RELATEDS_FAILURE, err })
+  })
+}
+
 export {
   addProject
 , viewProject
@@ -117,4 +134,5 @@ export {
 , fetchEntities
 , deleteEntity
 , addEntity
+, fetchEntitiesAndRelateds
 }

@@ -15,6 +15,9 @@ import {
 , POST_ENTITY_REQUEST
 , POST_ENTITY_SUCCESS
 , POST_ENTITY_FAILURE
+, FETCH_ENTITIES_AND_RELATEDS_REQUEST
+, FETCH_ENTITIES_AND_RELATEDS_SUCCESS
+, FETCH_ENTITIES_AND_RELATEDS_FAILURE
 } from '../actions/actionTypes';
 
 const initState = {
@@ -24,6 +27,8 @@ const initState = {
 , comparands: null
 , spinning: false
 , err: null
+, relateds: []
+, entities: null
 }
 
 /* TODO more event types need to set spinning and err state */
@@ -79,6 +84,13 @@ export default (state=initState, action) => {
         ...state
       , spinning: false
       , entities: [ ...state.entities, action.entity ]
+      }
+    case FETCH_ENTITIES_AND_RELATEDS_SUCCESS:
+      return {
+        ...state
+      , spinning: false
+      , entities: action.entities
+      , relateds: action.relateds
       }
     default:
       return state;

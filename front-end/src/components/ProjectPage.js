@@ -28,6 +28,11 @@ class ProjectPage extends React.Component {
                 <a>Enter entities</a>
               </LinkContainer>
             </li>
+            <li>
+              <LinkContainer to={`/projects/${this.props.project.id}/output`}>
+                <a>View results</a>
+              </LinkContainer>
+            </li>
           </ul>
         </Col>
         <Col xs={12} sm={12} md={12} lg={4}>
