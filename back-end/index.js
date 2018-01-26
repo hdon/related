@@ -90,9 +90,10 @@ app.post('/related', (req, res, next) => Promise.try(() => {
     b = req.body.a;
     a = req.body.b;
   }
-  knex('related')
+  /* two queries :3 because sqlite3 maybe? */
+  return knex('related')
   .select()
-  .where(req.body)
+  .where({a:a, b:b})
   .first()
   .then($ => $
   ? knex('related')
