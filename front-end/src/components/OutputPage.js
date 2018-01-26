@@ -7,16 +7,15 @@ import * as _ from 'lodash';
 
 const XMLNS = 'http://www.w3.org/2000/svg';
 
-function randomizePositions(entities, w, h) {
-  _.each(entities, entity => {
-    entity.x = Math.random() * w;
-    entity.y = Math.random() * h;
-  })
-}
+let IDCOUNTER = 0;
 
 class OutputPage extends React.Component {
   constructor(props) {
     super(props);
+
+    this.svg = null;
+    this.svgW = null;
+    this.svgH = null;
 
     const {
       entities
@@ -30,26 +29,36 @@ class OutputPage extends React.Component {
     , maxVc: 999
     };
     /* prebinds */
-    this.svgClick = this.svgClick.bind(this);
+    this.pumpEntities = this.pumpEntities.bind(this);
+  }
+  reinitializeGraphSelf() {
+    const {
+      entities
+    , matrix
+    , entityOrdinals
+    } = this.initializeGraph(this.props.entities, this.props.relateds);
+    this.setState({
+      matrix
+    , entityOrdinals
+    , entities
+    , maxVc: 999
+    });
   }
   initializeGraph(entities, relateds) {
+    if (this.svg === null)
+      console.log('whoops!') // XXX
     // map entity IDs to local ordinals
     const entityOrdinals = {};
     // TODO not very efficient
     _.each(entities, (ent, i) => entityOrdinals[ent.id] = Object.keys(entityOrdinals).length);
     // similar matrix?
     const numEntities = Object.keys(entities).length;
-    console.log('numEntities=', numEntities);
     /* NOTE matrix is about twice as big as it needs to be... */
     const matrix = _.map(
       _.range(0, numEntities)
     , () => Array(numEntities).fill(0)
     );
     _.each(relateds, related => {
-      console.log('related.a=', related.a);
-      console.log('entityOrdinals[related.a]=', entityOrdinals[related.a]);
-      console.log('related.b=', related.b);
-      console.log('entityOrdinals[related.b]=', entityOrdinals[related.b]);
       matrix[
         entityOrdinals[related.a]
       ][
@@ -59,8 +68,8 @@ class OutputPage extends React.Component {
     const stateEntities = _.map(entities, entity =>
       ({
         ...entity
-      , x: Math.random()
-      , y: Math.random()
+      , x: Math.random() * this.svgW
+      , y: Math.random() * this.svgH
       , vx: 0
       , vy: 0
       })
@@ -79,6 +88,16 @@ class OutputPage extends React.Component {
       ent.vx = 0;
       ent.vy = 0;
     })
+
+  //const temp = _.map(
+  //  _.range(0, entities.length)
+  //, () => Array(entities.length).fill(0)
+  //);
+    const temp = [];
+
+    const rad = 5;
+    const rad22 = rad*rad*2;
+
     for (let i=0; i<entities.length; i++) {
       const a = entities[i];
       const R = matrix[i];
@@ -87,25 +106,49 @@ class OutputPage extends React.Component {
         const r = R[j];
         const dx = a.x-b.x;
         const dy = a.y-b.y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        const dd = r-(max-d)/max;
-        const vx = dx * dd;
-        const vy = dy * dd;
-        a.vx += vx;
-        a.vy += vy;
-        b.vx -= vx;
-        b.vy -= vy;
+        const d2 = dx*dx + dy*dy;
+        const d  = Math.sqrt(d2);
+        // distance considering radius
+        //const dr = Math.max(d - rad*2, rad*2);
+        const dr = d;
+        /*
+        const sd = max-r-d;
+        const repel = Math.min(rad*4, 1/dr);
+        temp[i][j] = sd.toExponential(2);
+        const rf = 0;
+        const ic = 1;
+        const vx = dx/d * (repel - sd) * ic;
+        const vy = dy/d * (repel - sd) * ic;
+        */
+        /* target distance */
+        const h = (max-r+1)/(max+1)*200;
+        const err = d - h;
+        let vx = dx/d * err;
+        let vy = dy/d * err;
+        const v = Math.sqrt(vx*vx + vy*vy);
+        if (v > 1) {
+          const vf = 1/v;
+          vx *= vf;
+          vy *= vf;
+        }
+        temp.push(Math.sqrt(vx*vx + vy*vy));
+        a.vx -= vx;
+        a.vy -= vy;
+        b.vx += vx;
+        b.vy += vy;
       }
     }
     let maxVc = 0;
     _.each(entities, ent => {
       maxVc = Math.max(maxVc, Math.sqrt(ent.vx*ent.vx + ent.vy*ent.vy));
-      ent.x = Math.min(0.9, Math.max(0.1, ent.x + ent.vx * 0.01));
-      ent.y = Math.min(0.9, Math.max(0.1, ent.y + ent.vy * 0.01));
+      ent.x = Math.min(this.svgW-rad, Math.max(rad, ent.x + ent.vx));
+      ent.y = Math.min(this.svgH-rad, Math.max(rad, ent.y + ent.vy));
     })
+    temp.sort();
+    console.log(_.map(temp, x => x.toExponential(2)));
     return maxVc;
   }
-  svgClick(ev) {
+  pumpEntities() {
     const entities = _.map(this.state.entities, ent => ({ ...ent }));
     const maxVc = this.pumpGraph(entities, this.state.matrix);
     this.setState({
@@ -152,13 +195,18 @@ class OutputPage extends React.Component {
     const m = this.state.matrix;
     return m[i[idA]][i[idB]];
   }
+  componentWillMount() {
+    console.log('componentWillMount');
+  }
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
   render() {
     /* NOTE i don't think it's very useful to use RAF as opposed to setTimeout */
-    console.log('maxVc:', this.state.maxVc);
-    if (this.state.maxVc > 0)
+    if (this.state.maxVc > 0) // XXX
     requestAnimationFrame(() => {
       /* TODO cancel on unmount? */
-      this.svgClick();
+      this.pumpEntities();
     });
     return <div className="container">
       <Row>
@@ -180,23 +228,56 @@ class OutputPage extends React.Component {
         </Col>
         <Col lg={8} md={8} sm={12} xs={12}>
           <svg
-            onClick={this.svgClick}
+            onClick={this.pumpEntities}
             style={{
               width: '100%'
             , height: '100%'
             , minHeight: '600px'
             }}
-            ref={svg => this.svg = svg}
+            ref={svg => {
+              if (svg === null) {
+                console.log('unmounted <svg> i guess');
+                // NOTE on re-render, the <svg> element goes away, and we
+                // get called here with null. let's not reset anything
+                // here, retaining those values, assuming that when <svg>
+                // comes back and we get called again, the values will
+                // match. if they don't, then something caused our element
+                // to resize, in which case we will just have to go around
+                // another pass. beyond here, there be dragons.
+                //this.svg = null;
+                //this.svgW = null;
+                //this.svgH = null;
+              } else {
+                this.svg = svg;
+                const r = svg.getBoundingClientRect();
+                if (this.svgW !== r.width || this.svgH !== r.height) {
+                  window.FOOBAR = this;
+                  if (!('id' in this))
+                    this.id = IDCOUNTER++;
+                  console.log(`reinitializing (${this.id}) ${r.width} !== ${this.svgW} || ${this.svgH} !== ${r.height} (${this.svgW !== r.width} || ${this.svgH !== r.height})`);
+                  this.svgW = r.width;
+                  this.svgH = r.height;
+                  console.log(`reinitialized (${this.id}) ${r.width} != ${this.svgW} || ${this.svgH} != ${r.height}`);
+                  this.reinitializeGraphSelf();
+                }
+              }
+            }}
           >
             <rect width="100%" height="100%" fill="black" />
             {
-              this.state.entities.map(ent => <circle
+              this.state.entities.map(ent => [<circle
                 key={ent.id}
-                cx={100*ent.x+'%'}
-                cy={100*ent.y+'%'}
-                r="2.5%"
+                cx={ent.x}
+                cy={ent.y}
+                r="5px"
                 fill="yellow"
-              />)
+              />
+              , <text
+                  x={ent.x}
+                  y={ent.y}
+                  style={{fill:'white'}}
+              >{ent.name}</text>
+              ])
             }
           </svg>
         </Col>
@@ -207,6 +288,7 @@ class OutputPage extends React.Component {
           <table>
             <thead>
               <tr>
+                <th></th>
                 {
                   _.map(this.props.entities, (ent, k) =>
                     <th key={k}>{ent.name}</th>
